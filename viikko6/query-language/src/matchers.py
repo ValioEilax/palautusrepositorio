@@ -68,3 +68,33 @@ class Or:
             if condition.test(player):
                 return True
         return False
+
+class QueryBuilder:
+    def __init__(self):
+        self._matchers = []
+
+    def build(self):
+        return And(*self._matchers)
+
+    def playsIn(self, team):
+        self._matchers.append(PlaysIn(team))
+        return self
+
+    def hasAtLeast(self, value, attr):
+        self._matchers.append(HasAtLeast(value, attr))
+        return self
+
+    def hasFewerThan(self, value, attr):
+        self._matchers.append(HasFewerThan(value, attr))
+        return self
+
+    def orElse(self):
+        # Combine the previously added matchers with logical OR
+        previous_matchers = self._matchers[:-1]
+        last_matcher = self._matchers[-1]
+        or_condition = Or(*previous_matchers, last_matcher)
+        self._matchers = [or_condition]
+        return self
+
+    def oneOf(self, *matchers):
+        return Or(*self._matchers)
